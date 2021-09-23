@@ -14,10 +14,7 @@ direction = random.rand(1..4)*2  # 1以上4以下の範囲×2で初期化
 #--------自分で追加したメソッド--------
 
 def change_direction candidate, direction
-  random = Random.new   # 上にいるrandomとは何と別物.これを理解するにはselfとかスコープとかがわからないと難しい
-  # 素直にメソッドごとにnewしよう.
-  candidate.shuffle
-  case candidate[random.rand(candidate.size)]  # 0以上candidateのサイズ未満の整数から乱択
+  case candidate.sample
   when UP
     direction = UP
   when RIGHT
@@ -34,7 +31,7 @@ end
 def avoid_block values, direction
   next_isle = []  # next_itemに倣った
 
-  if values[direction] == BLOCK
+  if values[direction] == BLOCK # 突き当たるまでは直進する仕様
     if values[UP] != BLOCK
       next_isle.push(UP)
     end
@@ -106,9 +103,10 @@ def put target, values, direction
   end
 
   if result != nil
-    return result
+    return result, direction
   else
-    return walk(target, direction) # 改良の余地しかない
+    direction = avoid_block(values, direction)
+    return walk(target, direction), direction # 改良の余地しかない
   end
 end
 
@@ -125,7 +123,7 @@ loop do # ここからループ
 
 #ここに処理を書く
   if values.include?(CHAR) && values.rindex(CHAR) != 0 # include? と rindex
-    values = put(target, values, direction)
+    values, direction = put(target, values, direction)
   else
     direction = avoid_block(values, direction)
     direction = get_next_item(values, direction)
